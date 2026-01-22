@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ChevronLeft } from "lucide-react";
@@ -10,7 +10,23 @@ export default function BookTickets() {
   const { movieId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [selectedSeat, setSelectedSeat] = useState(null);
+  const [movie, setMovie] = useState(null);
+  const [selectedSeats, setSelectedSeats] = useState([]);
+  const [requestedSeats, setRequestedSeats] = useState(0);
+
+  useEffect(() => {
+    const fetchMovie = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/movies/${movieId}`,
+        );
+        setMovie(response.data);
+      } catch (error) {
+        console.error("Failed to fetch movie", error);
+      }
+    };
+    if (movieId) fetchMovie();
+  }, [movieId]);
 
   // Generate seat grid
   const seats = [];
@@ -22,25 +38,67 @@ export default function BookTickets() {
   }
 
   const handleSeatClick = (seatId) => {
-    setSelectedSeat(seatId);
+    if (selectedSeats.includes(seatId)) {
+      setSelectedSeats(selectedSeats.filter((s) => s !== seatId));
+    } else {
+      if (selectedSeats.length < requestedSeats) {
+        setSelectedSeats([...selectedSeats, seatId]);
+      } else {
+        alert(`You can only select ${requestedSeats} seats`);
+      }
+    }
   };
 
   const handleBook = async () => {
-    if (!selectedSeat) return;
+    if (selectedSeats.length !== requestedSeats) {
+      alert(`Please select exactly ${requestedSeats} seats`);
+      return;
+    }
     setLoading(true);
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/seats/${selectedSeat}/reserve`,
+        `http://localhost:5000/api/seats/reserve`,
+        {
+          movieId,
+          seatIds: selectedSeats,
+        },
       );
       const { bookingId } = response.data;
       navigate(`/checkout/${bookingId}`);
     } catch (error) {
-      alert("Seat already booked or error occurred");
-      setSelectedSeat(null);
+      alert("Some seats are already booked or error occurred", error);
+      setSelectedSeats([]);
     } finally {
       setLoading(false);
     }
   };
+
+  if (requestedSeats === 0) {
+    return (
+      <div className="min-h-screen pt-20 flex flex-col items-center px-4">
+        <div className="glass-panel p-8 rounded-xl w-full max-w-md text-center">
+          <h2 className="text-2xl font-bold text-white mb-6">How many tickets?</h2>
+          <div className="grid grid-cols-4 gap-4 mb-8">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+              <button
+                key={num}
+                onClick={() => setRequestedSeats(num)}
+                className="p-4 bg-gray-800 hover:bg-[rgb(var(--primary))] text-white rounded-lg transition-colors font-bold"
+              >
+                {num}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => navigate(-1)}
+            className="text-gray-400 hover:text-white"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-20 pb-10 px-4 flex flex-col items-center">
@@ -55,6 +113,15 @@ export default function BookTickets() {
         <h1 className="text-2xl font-bold text-white mb-8 text-center">
           Select Seats
         </h1>
+
+        <h1 className="text-2xl font-bold text-white mb-2 text-center">
+          {movie ? `Book Tickets: ${movie.title}` : "Select Seats"}
+        </h1>
+        {movie && (
+          <p className="text-gray-400 text-center mb-8">
+            {movie.genre.join(", ")} | {movie.duration} min
+          </p>
+        )}
 
         {/* Screen */}
         <div className="w-full max-w-2xl mx-auto mb-12">
@@ -73,11 +140,10 @@ export default function BookTickets() {
                 onClick={() => handleSeatClick(seatId)}
                 className={`
                             w-8 h-8 sm:w-10 sm:h-10 rounded-t-lg text-xs font-medium transition-all
-                            ${
-                              selectedSeat === seatId
-                                ? "bg-[rgb(var(--primary))] text-white transform scale-110 shadow-lg shadow-red-500/50"
-                                : "bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white"
-                            }
+                            ${selectedSeats.includes(seatId)
+                    ? "bg-[rgb(var(--primary))] text-white transform scale-110 shadow-lg shadow-red-500/50"
+                    : "bg-gray-700 text-gray-400 hover:bg-gray-600 hover:text-white"
+                  }
                         `}
               >
                 {seatId}
@@ -106,14 +172,14 @@ export default function BookTickets() {
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#161b22] border-t border-[#30363d] flex justify-center">
           <button
             onClick={handleBook}
-            disabled={!selectedSeat || loading}
+            disabled={selectedSeats.length !== requestedSeats || loading}
             className="btn-primary w-full max-w-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading
               ? "Processing..."
-              : selectedSeat
-                ? `Pay for ${selectedSeat}`
-                : "Select a Seat"}
+              : selectedSeats.length === requestedSeats
+                ? `Pay for ${selectedSeats.join(", ")}`
+                : `Select ${requestedSeats - selectedSeats.length} more seats`}
           </button>
         </div>
       </div>

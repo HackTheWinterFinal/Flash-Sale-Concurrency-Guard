@@ -2,5 +2,5 @@
 const router = require("express").Router();
 const controller = require("../controllers/seat.controller");
 
-router.post("/:seatId/reserve", controller.reserveSeat);
+router.post("/reserve", controller.reserveSeats);
 module.exports = router;

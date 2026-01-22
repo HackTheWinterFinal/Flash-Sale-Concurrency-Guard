@@ -29,7 +29,11 @@ exports.pay = async (bookingId) => {
 
     // 4. Immediate Release if payment definitively fails
     await Booking.updateOne({ bookingId }, { status: "FAILED" });
-    await redis.del(`seat:${booking.seatId}`);
+    if (booking.seatIds) {
+      for (const seatId of booking.seatIds) {
+        await redis.del(`seat:${seatId}`);
+      }
+    }
 
     return "PAYMENT_FAILED";
   }

@@ -1,9 +1,9 @@
 const Booking = require("../models/Booking");
 
-exports.createBooking = async ({ bookingId, seatId }) => {
+exports.createBooking = async ({ bookingId, seatIds }) => {
   return Booking.create({
     bookingId,
-    seatId,
+    seatIds,
     status: "PENDING",
   });
 };

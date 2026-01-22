@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const BookingSchema = new mongoose.Schema({
   bookingId: { type: String, unique: true },
-  seatId: String,
+  seatIds: [String],
   status: {
     type: String,
     enum: ["PENDING", "CONFIRMED", "FAILED"],

@@ -13,7 +13,7 @@ async function runStressTest() {
   for (let i = 0; i < REQUEST_COUNT; i++) {
     requests.push(
       axios
-        .post(`${BASE_URL}/seats/${SEAT_ID}/reserve`)
+        .post(`${BASE_URL}/seats/reserve`, { seatIds: [SEAT_ID] })
         .then((res) => ({ status: "success", data: res.data }))
         .catch((err) => ({
           status: "fail",

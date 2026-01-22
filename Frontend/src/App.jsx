@@ -24,9 +24,9 @@ export default function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/book/:movieId" element={<ProtectedRoute><BookTickets /></ProtectedRoute>} />
             <Route path="/checkout/:bookingId" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-            <Route path="/success" element={<Success />} />
+            <Route path="/success/:bookingId" element={<Success />} />
             <Route path="/failed" element={<Failed />} />
-            
+
             {/* Company Routes */}
             <Route path="/dashboard" element={<ProtectedRoute role="company"><CompanyDashboard /></ProtectedRoute>} />
             <Route path="/dashboard/add-movie" element={<ProtectedRoute role="company"><AddMovie /></ProtectedRoute>} />
