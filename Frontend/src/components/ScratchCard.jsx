@@ -67,13 +67,13 @@ export default function ScratchCard() {
     };
 
     return (
-        <div className="flex flex-col items-center mt-6 p-4 rounded-xl bg-gradient-to-br from-indigo-900/40 to-purple-900/40 border border-white/10 shadow-2xl relative overflow-hidden">
+        <div className="flex flex-col items-center mt-6 p-4 rounded-xl bg-linear-to-br from-indigo-900/40 to-purple-900/40 border border-white/10 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 p-2 opacity-20">
                 <Sparkles className="w-12 h-12 text-yellow-400" />
             </div>
 
             <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <Gift className="text-yellow-400" /> Special Reward!
+                <Gift className="text-yellow-400" />Your Special Reward!
             </h3>
 
             <div className="relative w-64 h-32 rounded-lg overflow-hidden border-2 border-dashed border-white/20">
@@ -108,7 +108,7 @@ export default function ScratchCard() {
 
             {!scratched && (
                 <p className="text-gray-400 mt-4 text-xs italic">
-                    Scratch the card to reveal your prize!
+                    Scratch this card to reveal your prize!
                 </p>
             )}
         </div>

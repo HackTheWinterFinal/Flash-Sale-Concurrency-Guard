@@ -68,7 +68,7 @@ export default function Navbar() {
             ) : (
               <>
                 <Link to="/login" className="text-gray-300 hover:text-white font-medium transition-colors">
-                  Login
+                  Log in
                 </Link>
                 <Link to="/signup" className="btn-primary text-sm">
                   Sign Up

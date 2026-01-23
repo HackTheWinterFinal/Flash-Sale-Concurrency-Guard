@@ -1,5 +1,5 @@
 const axios = require("axios");
-const { v4: uuid } = require("uuid"); // Ensure uuid is installed or use math random
+const { v4: uuid } = require("uuid");
 
 const BASE_URL = "http://localhost:5000/api";
 const REQUEST_COUNT = 500;

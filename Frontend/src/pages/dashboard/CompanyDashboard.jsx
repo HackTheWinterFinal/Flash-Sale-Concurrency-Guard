@@ -103,7 +103,7 @@ export default function CompanyDashboard() {
                 </div>
               </div>
               <div className="p-4 pt-0 flex items-center gap-3 border-t border-white/5 mt-auto">
-                <Link to={`/dashboard/edit/${movie._id}`} className="btn-primary text-sm px-4 py-2 flex-grow text-center">Edit</Link>
+                <Link to={`/dashboard/edit/${movie._id}`} className="btn-primary text-sm px-4 py-2 grow text-center">Edit</Link>
                 <button 
                   onClick={() => handleDeleteMovie(movie._id)}
                   className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded-lg p-2 transition-colors"

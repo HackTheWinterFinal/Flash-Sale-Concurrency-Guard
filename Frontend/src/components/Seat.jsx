@@ -12,7 +12,7 @@ export default function Seat({ seatId }) {
       const res = await reserveSeat(seatId);
       navigate(`/checkout/${res.data.bookingId}`);
     } catch {
-      alert("❌ Seat already booked!");
+      alert("Seat already booked!");
     } finally {
       setLoading(false);
     }

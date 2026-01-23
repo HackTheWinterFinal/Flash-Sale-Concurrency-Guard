@@ -114,7 +114,7 @@ export default function Checkout() {
           ) : (
             <>
               <ShieldCheck className="w-5 h-5" /> 
-              {booking ? `Pay ₹${booking.amount || ''}` : 'Pay Now'}
+              {booking ? `Pay ₹${booking.amount || ''}` : 'Pay'}
             </>
           )}
         </button>

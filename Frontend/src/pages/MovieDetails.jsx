@@ -67,7 +67,7 @@ export default function MovieDetails() {
       </div>
 
       {/* Hero Section with Background */}
-      <div className="relative w-full h-[50vh] min-h-[400px] mb-8">
+      <div className="relative w-full h-[50vh] min-h-100 mb-8">
         <img
           src={movie.backgroundUrl || movie.posterUrl}
           alt={movie.title}

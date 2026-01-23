@@ -21,7 +21,7 @@ export default function MoviePreviewModal({ movie, onClose }) {
 
           <div className="bg-linear-to-r from-[rgb(220,53,69)] to-[rgb(150,30,45)] p-4 rounded-t-2xl">
             <h2 className="text-2xl font-bold text-white text-center">Movie Preview</h2>
-            <p className="text-white/80 text-center text-sm mt-1">This is how users will see your movie</p>
+            <p className="text-white/80 text-center text-sm mt-1">This is how users will see your movies</p>
           </div>
 
           <div className="bg-[#0d1117] border border-[#30363d] rounded-b-2xl overflow-hidden">
@@ -71,7 +71,7 @@ export default function MoviePreviewModal({ movie, onClose }) {
 
             <div className="p-8 space-y-6">
               <div>
-                <h3 className="text-xl font-semibold text-white mb-3">Full Description</h3>
+                <h3 className="text-xl font-semibold text-white mb-3">Description</h3>
                 <p className="text-gray-300 leading-relaxed">{movie.description}</p>
               </div>
 
