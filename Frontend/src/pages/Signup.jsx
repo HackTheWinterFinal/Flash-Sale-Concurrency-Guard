@@ -72,6 +72,7 @@ export default function Signup() {
               value={formData.name}
               onChange={handleChange}
               required
+              placeholder="Enter your name"
             />
           </div>
           <div>
@@ -85,6 +86,7 @@ export default function Signup() {
               value={formData.email}
               onChange={handleChange}
               required
+              placeholder="Enter your email"
             />
           </div>
           <div>
@@ -98,6 +100,7 @@ export default function Signup() {
               value={formData.password}
               onChange={handleChange}
               required
+              placeholder="Enter your password"
             />
           </div>
 

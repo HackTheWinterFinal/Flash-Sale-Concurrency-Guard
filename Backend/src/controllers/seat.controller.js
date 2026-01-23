@@ -12,7 +12,9 @@ const lua = fs.readFileSync(
 );
 
 exports.reserveSeats = async (req, res) => {
-  const { seatIds } = req.body;
+  const { seatIds, movieId, price } = req.body;
+  const userId = req.userData.userId;
+
   if (!seatIds || !Array.isArray(seatIds) || seatIds.length === 0) {
     return res.status(400).json({ message: "No seats selected" });
   }
@@ -22,7 +24,8 @@ exports.reserveSeats = async (req, res) => {
 
   try {
     for (const seatId of seatIds) {
-      const locked = await redis.eval(lua, 1, `seat:${seatId}`, bookingId, 300000);
+      // Lock for 60 seconds (60000 ms) as per requirement
+      const locked = await redis.eval(lua, 1, `seat:${seatId}`, bookingId, 60000);
       if (!locked) {
         // Rollback already acquired locks
         for (const id of lockedSeats) {
@@ -33,16 +36,27 @@ exports.reserveSeats = async (req, res) => {
       lockedSeats.push(seatId);
     }
 
-    await Booking.create({
+    // Store temporary booking in Redis for 60 seconds
+    const tempBookingData = {
       bookingId,
       seatIds,
+      userId,
+      movieId,
+      amount: price * seatIds.length,
       status: "PENDING",
-    });
+      createdAt: Date.now(),
+    };
 
-    await kafkaProducer.publish("BOOKING_CREATED", {
-      bookingId,
-      seatIds,
-    });
+    await redis.set(
+      `tempBooking:${bookingId}`,
+      JSON.stringify(tempBookingData),
+      "EX",
+      60
+    );
+
+    // Note: We do NOT create a MongoDB record here. 
+    // We also moved Kafka publishing to the payment service, 
+    // as the booking is only "real" after payment.
 
     res.json({ bookingId });
   } catch (error) {

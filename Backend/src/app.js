@@ -15,6 +15,7 @@ app.use("/api/seats", seatRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/movies", movieRoutes);
+app.use("/api/users", require("./routes/user.routes"));
 
 app.get("/health", (req, res) => {
   res.json({ status: "OK" });

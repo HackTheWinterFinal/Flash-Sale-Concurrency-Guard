@@ -8,8 +8,14 @@ router.get('/:id', movieController.getMovieById);
 
 // Protected Routes
 router.use(checkAuth);
-router.post('/', movieController.addMovie);
+const upload = require('../middleware/upload.middleware');
+
+router.post('/', upload.fields([
+  { name: 'poster', maxCount: 1 },
+  { name: 'background', maxCount: 1 }
+]), movieController.addMovie);
 router.put('/:id', movieController.updateMovie);
+router.delete('/:id', movieController.deleteMovie);
 router.get('/company/mine', movieController.getCompanyMovies);
 
 

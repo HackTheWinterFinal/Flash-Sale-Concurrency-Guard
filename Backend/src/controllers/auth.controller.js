@@ -32,7 +32,13 @@ exports.signup = async (req, res) => {
     res.status(201).json({
       message: 'User created successfully',
       token,
-      user: { id: newUser._id, name: newUser.name, email: newUser.email, role: newUser.role }
+      user: { 
+        id: newUser._id, 
+        name: newUser.name, 
+        email: newUser.email, 
+        role: newUser.role,
+        companyName: newUser.companyName 
+      }
     });
   } catch (error) {
     res.status(500).json({ message: 'Something went wrong', error: error.message });
@@ -61,7 +67,13 @@ exports.login = async (req, res) => {
 
     res.status(200).json({
       token,
-      user: { id: existingUser._id, name: existingUser.name, email: existingUser.email, role: existingUser.role }
+      user: { 
+        id: existingUser._id, 
+        name: existingUser.name, 
+        email: existingUser.email, 
+        role: existingUser.role,
+        companyName: existingUser.companyName
+      }
     });
   } catch (error) {
     res.status(500).json({ message: 'Something went wrong', error: error.message });

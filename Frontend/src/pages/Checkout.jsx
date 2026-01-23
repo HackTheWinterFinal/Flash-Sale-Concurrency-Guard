@@ -1,12 +1,69 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { payBooking } from "../services/api";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CreditCard, ShieldCheck } from "lucide-react";
+import axios from "axios";
 
 export default function Checkout() {
   const { bookingId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [booking, setBooking] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(null);
+
+  useEffect(() => {
+    const fetchBooking = async () => {
+      try {
+        // Fetch booking details to get amount
+        const response = await axios.get(`http://localhost:5000/api/bookings/${bookingId}`);
+        setBooking(response.data);
+        
+        // Calculate remaining time
+        if (response.data.createdAt) {
+            const createdAt = new Date(response.data.createdAt).getTime();
+            const now = Date.now();
+            const elapsed = Math.floor((now - createdAt) / 1000);
+            const remaining = 60 - elapsed;
+            
+            if (remaining <= 0) {
+                alert("Failed to buy ticket: Payment time expired.");
+                navigate("/");
+            } else {
+                setTimeLeft(remaining);
+            }
+        }
+      } catch (error) {
+        console.error("Failed to fetch booking", error);
+        if (error.response && error.response.status === 404) {
+            alert("Booking not found or expired.");
+            navigate("/");
+        }
+      }
+    };
+    fetchBooking();
+  }, [bookingId, navigate]);
+
+  useEffect(() => {
+    if (timeLeft === null) return;
+
+    if (timeLeft <= 0) {
+        alert("Failed to buy ticket: Payment time expired.");
+        navigate("/");
+        return;
+    }
+
+    const timer = setInterval(() => {
+        setTimeLeft((prev) => {
+            if (prev <= 1) {
+                clearInterval(timer);
+                return 0;
+            }
+            return prev - 1;
+        });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, navigate]);
 
   const handlePay = async () => {
     setLoading(true);
@@ -30,19 +87,34 @@ export default function Checkout() {
 
         <div className="bg-[#161b22] p-4 rounded-lg border border-[#30363d] mb-8 text-left">
           <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Booking Reference</p>
-          <p className="text-white font-mono text-sm break-all">{bookingId}</p>
+          <p className="text-white font-mono text-sm break-all mb-4">{bookingId}</p>
+          
+          <div className="border-t border-[#30363d] pt-4 mt-4 flex justify-between items-center">
+            <span className="text-gray-400">Total Amount</span>
+            <span className="text-xl font-bold text-white">
+              {booking ? `₹${booking.amount || 'N/A'}` : 'Loading...'}
+            </span>
+          </div>
+          
+          {timeLeft !== null && (
+              <div className="mt-4 pt-4 border-t border-[#30363d] flex justify-between items-center text-red-400">
+                  <span className="text-sm">Time Remaining</span>
+                  <span className="font-mono font-bold text-xl">{timeLeft}s</span>
+              </div>
+          )}
         </div>
 
         <button
           onClick={handlePay}
-          disabled={loading}
+          disabled={loading || !booking || timeLeft <= 0}
           className="w-full btn-primary py-3 rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             "Processing..."
           ) : (
             <>
-              <ShieldCheck className="w-5 h-5" /> Pay Now
+              <ShieldCheck className="w-5 h-5" /> 
+              {booking ? `Pay ₹${booking.amount || ''}` : 'Pay Now'}
             </>
           )}
         </button>

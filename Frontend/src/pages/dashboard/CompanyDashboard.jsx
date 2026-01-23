@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { Plus, Calendar, Clock, Film } from 'lucide-react';
+import { Plus, Calendar, Clock, Film, Trash, Users } from 'lucide-react';
 
 export default function CompanyDashboard() {
   const [movies, setMovies] = useState([]);
@@ -25,6 +25,23 @@ export default function CompanyDashboard() {
     }
   };
 
+  const handleDeleteMovie = async (movieId) => {
+    if (!window.confirm("Are you sure you want to delete this movie? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:5000/api/movies/${movieId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setMovies(movies.filter(m => m._id !== movieId));
+    } catch (error) {
+      console.error("Failed to delete movie", error);
+      alert("Failed to delete movie");
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="bg-[#0d1117]/90 backdrop-blur-xl rounded-2xl p-6 border border-white/10 mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-[0_20px_60px_rgba(0,0,0,0.3)]">
@@ -33,10 +50,16 @@ export default function CompanyDashboard() {
           <h1 className="text-3xl font-extrabold text-white">Company Dashboard</h1>
           <p className="text-gray-400 mt-1">Manage movies, pricing, and trailers in one place</p>
         </div>
-        <Link to="/dashboard/add-movie" className="btn-primary flex items-center gap-2 px-5 py-3">
-          <Plus className="w-5 h-5" />
-          Add New Movie
-        </Link>
+        <div className="flex gap-3">
+          <Link to="/dashboard/bookings" className="btn-secondary flex items-center gap-2 px-5 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors">
+            <Users className="w-5 h-5" />
+            View Bookings
+          </Link>
+          <Link to="/dashboard/add-movie" className="btn-primary flex items-center gap-2 px-5 py-3">
+            <Plus className="w-5 h-5" />
+            Add New Movie
+          </Link>
+        </div>
       </div>
 
       {loading ? (
@@ -80,7 +103,14 @@ export default function CompanyDashboard() {
                 </div>
               </div>
               <div className="p-4 pt-0 flex items-center gap-3 border-t border-white/5 mt-auto">
-                <Link to={`/dashboard/edit/${movie._id}`} className="btn-primary text-sm px-4 py-2">Edit</Link>
+                <Link to={`/dashboard/edit/${movie._id}`} className="btn-primary text-sm px-4 py-2 flex-grow text-center">Edit</Link>
+                <button 
+                  onClick={() => handleDeleteMovie(movie._id)}
+                  className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded-lg p-2 transition-colors"
+                  title="Delete Movie"
+                >
+                  <Trash className="w-5 h-5" />
+                </button>
               </div>
             </div>
           ))}

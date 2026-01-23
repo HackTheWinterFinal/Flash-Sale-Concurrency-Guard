@@ -30,7 +30,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="text-2xl font-bold bg-clip-text text-transparent bg-linear-to-r from-[rgb(var(--primary))] to-pink-500 drop-shadow">
-              BookMyShow
+              Eventory
             </Link>
           </div>
           <div className="relative flex items-center space-x-4" ref={menuRef}>
@@ -46,9 +46,18 @@ export default function Navbar() {
                 </button>
                 {open && (
                   <div className="absolute right-0 top-full mt-3 w-56 rounded-xl bg-[#0d1117]/95 backdrop-blur-xl border border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.45)] overflow-hidden z-50">
-                    <button onClick={() => {setOpen(false); navigate('/account');}} className="w-full text-left px-4 py-3 text-gray-100 hover:bg-white/10">My Account</button>
-                    <button onClick={() => {setOpen(false); navigate('/my-bookings');}} className="w-full text-left px-4 py-3 text-gray-100 hover:bg-white/10">My Bookings</button>
-                    <button onClick={() => {setOpen(false); navigate('/rewards');}} className="w-full text-left px-4 py-3 text-gray-100 hover:bg-white/10">My Rewards</button>
+                    <button onClick={() => {setOpen(false); navigate('/my-account');}} className="w-full text-left px-4 py-3 text-gray-100 hover:bg-white/10">My Account</button>
+                    {user.role === 'company' ? (
+                      <>
+                        <button onClick={() => {setOpen(false); navigate('/dashboard');}} className="w-full text-left px-4 py-3 text-gray-100 hover:bg-white/10">Dashboard</button>
+                        <button onClick={() => {setOpen(false); navigate('/dashboard/bookings');}} className="w-full text-left px-4 py-3 text-gray-100 hover:bg-white/10">View Bookings</button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => {setOpen(false); navigate('/my-bookings');}} className="w-full text-left px-4 py-3 text-gray-100 hover:bg-white/10">My Bookings</button>
+                        <button onClick={() => {setOpen(false); navigate('/rewards');}} className="w-full text-left px-4 py-3 text-gray-100 hover:bg-white/10">My Rewards</button>
+                      </>
+                    )}
                     <div className="h-px bg-white/10" />
                     <button onClick={() => {setOpen(false); handleLogout();}} className="w-full text-left px-4 py-3 text-red-300 hover:bg-red-500/20 flex items-center gap-2">
                       <LogOut className="w-4 h-4" /> Logout

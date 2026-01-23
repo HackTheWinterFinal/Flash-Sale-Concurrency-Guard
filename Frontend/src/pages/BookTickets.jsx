@@ -6,14 +6,18 @@ import { ChevronLeft } from "lucide-react";
 const ROWS = 5;
 const COLS = 8;
 
+import { useAuth } from "../context/AuthContext";
+
 export default function BookTickets() {
   const { movieId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [movie, setMovie] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [requestedSeats, setRequestedSeats] = useState(0);
   const [bookedSeats, setBookedSeats] = useState([]);
+  const [pendingSeats, setPendingSeats] = useState([]);
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -23,6 +27,7 @@ export default function BookTickets() {
         );
         setMovie(response.data);
         setBookedSeats(response.data.bookedSeats || []);
+        setPendingSeats(response.data.pendingSeats || []);
       } catch (error) {
         console.error("Failed to fetch movie", error);
       }
@@ -40,7 +45,7 @@ export default function BookTickets() {
   }
 
   const handleSeatClick = (seatId) => {
-    if (bookedSeats.includes(seatId)) return;
+    if (bookedSeats.includes(seatId) || pendingSeats.includes(seatId)) return;
     if (selectedSeats.includes(seatId)) {
       setSelectedSeats(selectedSeats.filter((s) => s !== seatId));
     } else {
@@ -59,18 +64,29 @@ export default function BookTickets() {
     }
     setLoading(true);
     try {
+      const token = localStorage.getItem('token');
       const response = await axios.post(
         `http://localhost:5000/api/seats/reserve`,
         {
           movieId,
           seatIds: selectedSeats,
+          price: movie?.price || 250
         },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
       );
       const { bookingId } = response.data;
       navigate(`/checkout/${bookingId}`);
     } catch (error) {
       alert("Some seats are already booked or error occurred", error);
       setSelectedSeats([]);
+      // Refresh data
+      const response = await axios.get(`http://localhost:5000/api/movies/${movieId}`);
+      if(response.data) {
+          setBookedSeats(response.data.bookedSeats || []);
+          setPendingSeats(response.data.pendingSeats || []);
+      }
     } finally {
       setLoading(false);
     }
@@ -139,6 +155,7 @@ export default function BookTickets() {
           <div className="grid grid-cols-8 gap-3 sm:gap-4">
             {seats.map((seatId) => {
               const isBooked = bookedSeats.includes(seatId);
+              const isPending = pendingSeats.includes(seatId);
               const isSelected = selectedSeats.includes(seatId);
               return (
                 <button
@@ -148,12 +165,14 @@ export default function BookTickets() {
                               w-8 h-8 sm:w-10 sm:h-10 rounded-t-lg text-xs font-medium transition-all
                               ${isBooked
                       ? "bg-red-600 text-white cursor-not-allowed opacity-70"
-                      : isSelected
+                      : isPending
+                        ? "bg-yellow-500 text-white cursor-not-allowed opacity-80"
+                        : isSelected
                         ? "bg-amber-500 text-white transform scale-110 shadow-lg shadow-amber-500/40"
                         : "bg-green-600 text-white hover:bg-green-500"
                     }
                           `}
-                  disabled={isBooked}
+                  disabled={isBooked || isPending}
                 >
                   {seatId}
                 </button>
@@ -173,6 +192,10 @@ export default function BookTickets() {
             <span>Selected</span>
           </div>
           <div className="flex items-center gap-2">
+             <div className="w-4 h-4 bg-yellow-500 rounded-sm opacity-80"></div>
+             <span>Pending</span>
+          </div>
+          <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-red-600 cursor-not-allowed opacity-80 rounded-sm"></div>
             <span>Sold</span>
           </div>
@@ -188,7 +211,7 @@ export default function BookTickets() {
             {loading
               ? "Processing..."
               : selectedSeats.length === requestedSeats
-                ? `Pay for ${selectedSeats.join(", ")}`
+                ? `Pay ₹${selectedSeats.length * (movie?.price || 250)} for ${selectedSeats.join(", ")}`
                 : `Select ${requestedSeats - selectedSeats.length} more seats`}
           </button>
         </div>
